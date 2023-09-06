@@ -14,6 +14,10 @@ public class Target : MonoBehaviour
     public int pointValues;
     public ParticleSystem particles;
 
+    AudioSource audioSourceExplode;
+    AudioSource audioSourceSlash;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +27,9 @@ public class Target : MonoBehaviour
         targetRb.AddForce(RandomForce(), ForceMode.Impulse);
         targetRb.AddTorque(RandomTorque(), RandomTorque(), RandomTorque(), ForceMode.Impulse);
         transform.position = RandomSpawnPos();
+        audioSourceExplode = GameObject.Find("ExplodeAudio").GetComponent<AudioSource>();
+        audioSourceSlash = GameObject.Find("SlashAudio").GetComponent<AudioSource>();
+
     }
 
     // Update is called once per frame
@@ -30,24 +37,52 @@ public class Target : MonoBehaviour
     {
 
     }
-    private void OnMouseDown()
-    {
-        if (gameManager.isGameActive)
-        {
-            Destroy(gameObject);
-            gameManager.UpdateScore(pointValues);
-            Instantiate(particles, transform.position, particles.transform.rotation);
-        }
-    }
+    //private void OnMouseDown()
+    //{
+    //    if (gameManager.isGameActive)
+    //    {
+    //        if (gameObject.CompareTag("Bad"))
+    //        {
+    //            audioSourceExplode.Play();
+    //        }
+    //        else
+    //        {
+    //            audioSourceSlash.Play();
+    //        }
+    //        Destroy(gameObject);
+    //        gameManager.UpdateScore(pointValues);
+    //        Instantiate(particles, transform.position, particles.transform.rotation);
+            
+    //    }
+    //}
 
     private void OnTriggerEnter(Collider other)
     {
         Destroy(gameObject);
-        if (!gameObject.CompareTag("Bad"))
+        if (!gameObject.CompareTag("Bad") && gameManager.isGameActive)
         {
-            gameManager.GameOver();
+            gameManager.UpdateLives(-1);
         }
 
+    }
+
+    public void DestroyTarget()
+    {
+        if (gameManager.isGameActive)
+        {
+            if (gameObject.CompareTag("Bad"))
+            {
+                audioSourceExplode.Play();
+            }
+            else
+            {
+                audioSourceSlash.Play();
+            }
+            Destroy(gameObject);
+            gameManager.UpdateScore(pointValues);
+            Instantiate(particles, transform.position, particles.transform.rotation);
+
+        }
     }
 
     Vector3 RandomForce()
